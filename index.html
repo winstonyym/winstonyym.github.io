@@ -11,20 +11,307 @@
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 	<link rel="stylesheet" href="assets/css/main.css" />
+	<style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #355070, #6d597a, #b56576, #e56b6f, #eaac8b);
+      color: white;
+    }
+
+    .page-content {
+      padding: 3rem;
+      max-width: 900px;
+    }
+
+/* Floating Gradio window */
+.gradio-window {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  bottom: 20px;
+  left: 20px;
+
+  width: 400px;
+  height: auto;
+
+  border-radius: 22px;
+  overflow: hidden;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.25s ease;
+  resize: none;
+}
+
+/* Start minimized at bottom right */
+.gradio-window.minimized {
+  top: auto;
+  left: auto;
+  right: 24px;
+  bottom: 24px;
+
+  width: 260px;
+  height: 56px;
+  border-radius: 18px;
+}
+
+/* Hide app body when minimized */
+.gradio-window.minimized .gradio-body {
+  display: none;
+}
+
+	.gradio-window.maximized {
+      top: 20px !important;
+      right: 20px !important;
+      left: 20px !important;
+      width: auto !important;
+      height: calc(100vh - 40px) !important;
+      resize: none;
+    }
+
+    .gradio-header {
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px 0 18px;
+  background: rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  flex-shrink: 0;
+}
+
+.gradio-body {
+  flex: 1;
+}
+
+.gradio-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+    .gradio-header:active {
+      cursor: grabbing;
+    }
+
+    .gradio-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.95);
+      letter-spacing: 0.2px;
+    }
+
+    .gradio-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .gradio-btn {
+      width: 34px;
+      height: 34px;
+      border: none;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.12);
+      color: white;
+      cursor: pointer;
+      font-size: 0.95rem;
+      transition: background 0.2s ease, transform 0.15s ease;
+    }
+
+    .gradio-btn:hover {
+      background: rgba(255, 255, 255, 0.22);
+      transform: translateY(-1px);
+    }
+
+
+    .gradio-window.minimized .gradio-body {
+      display: none;
+    }
+
+
+    .open-widget-btn {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 9998;
+      border: none;
+      border-radius: 999px;
+      padding: 14px 18px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      color: white;
+      background: rgba(255, 255, 255, 0.14);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.18);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .gradio-window {
+        top: auto;
+        bottom: 16px;
+        right: 16px;
+        left: 16px;
+        width: auto;
+        height: 70vh;
+      }
+
+      .gradio-window.maximized {
+        top: 10px !important;
+        right: 10px !important;
+        left: 10px !important;
+        bottom: 10px !important;
+        height: auto !important;
+      }
+    }
+  </style>
 </head>
 
 <body class="is-preload">
 
 	<!-- Header -->
 	<header id="header">
-		<div class="inner">
-			<a href="#" class="image avatar"><img src="images/google_scholar.png" alt="" width=8% height=8% /></a>
-			<h1><strong>Winston Yap</strong>, PhD Researcher<br />
-				<a href="http://ual.sg/">Urban Analytics Lab</a> <br />
-				College of Design & Engineering.
-			</h1>
-		</div>
-	</header>
+	<div class="inner">
+		<a href="#" class="image avatar">
+			<img src="images/google_scholar.png" alt="Winston Yap" />
+		</a>
+
+		<p class="eyebrow">Urban Analytics • Systems Thinking • Urban Health</p>
+
+		<h1>
+			<strong>Winston Yap</strong><br />
+			Postdoctoral Associate, Cornell University
+		</h1>
+
+		<p class="header-meta">
+			Formerly Urban Analytics Lab, National University of Singapore
+		</p>
+	</div>
+</header>
+
+<!-- Floating widget -->
+  <div id="gradioWindow" class="gradio-window minimized">
+    <div id="gradioHeader" class="gradio-header">
+      <div class="gradio-title">Let's Chat!</div>
+      <div class="gradio-controls">
+        <button id="minBtn" class="gradio-btn" title="Minimize">—</button>
+        <button id="maxBtn" class="gradio-btn" title="Maximize">□</button>
+        <button id="closeBtn" class="gradio-btn" title="Close">✕</button>
+      </div>
+    </div>
+    <div class="gradio-body">
+      <iframe
+	src="https://winstonyym-career-conversation.hf.space"
+	frameborder="0"
+	width=100%
+	height=100%
+></iframe>
+    </div>
+  </div>
+
+  <button id="openWidgetBtn" class="open-widget-btn">AI</button>
+
+  <script>
+    const win = document.getElementById("gradioWindow");
+    const header = document.getElementById("gradioHeader");
+    const minBtn = document.getElementById("minBtn");
+    const maxBtn = document.getElementById("maxBtn");
+    const closeBtn = document.getElementById("closeBtn");
+    const openWidgetBtn = document.getElementById("openWidgetBtn");
+
+    let isDragging = false;
+    let offsetX = 0;
+    let offsetY = 0;
+    let isMaximized = false;
+
+    // Minimize
+
+
+minBtn.addEventListener("click", () => {
+	console.log(win.classList)
+  if (win.classList.contains("minimized")) {
+
+    /* EXPAND */
+    win.classList.remove("minimized");
+    win.style.top = "20px";
+    win.style.left = "75%";
+    // win.style.right = "20px";
+    // win.style.bottom = "20px";
+
+  } else {
+
+    /* MINIMIZE */
+    win.classList.add("minimized");
+
+    win.style.top = "auto";
+    win.style.left = "auto";
+    win.style.right = "24px";
+    win.style.bottom = "24px";
+
+  }
+
+});
+
+	
+    // Maximize / restore
+    maxBtn.addEventListener("click", () => {
+      isMaximized = !isMaximized;
+      win.classList.toggle("maximized", isMaximized);
+      if (isMaximized) {
+        win.classList.remove("minimized");
+      }
+    });
+
+    // Close
+    closeBtn.addEventListener("click", () => {
+      win.style.display = "none";
+      openWidgetBtn.style.display = "block";
+    });
+
+    // Reopen
+    openWidgetBtn.addEventListener("click", () => {
+      win.style.display = "flex";
+      openWidgetBtn.style.display = "none";
+    });
+
+    // Dragging
+    header.addEventListener("mousedown", (e) => {
+      if (win.classList.contains("maximized")) return;
+
+      isDragging = true;
+      const rect = win.getBoundingClientRect();
+      offsetX = e.clientX - rect.left;
+      offsetY = e.clientY - rect.top;
+
+      win.style.left = rect.left + "px";
+      win.style.top = rect.top + "px";
+      win.style.right = "auto";
+    });
+
+    document.addEventListener("mousemove", (e) => {
+      if (!isDragging) return;
+
+      win.style.left = `${e.clientX - offsetX}px`;
+      win.style.top = `${e.clientY - offsetY}px`;
+    });
+
+    document.addEventListener("mouseup", () => {
+      isDragging = false;
+    });
+  </script>
 
 	<!-- Main -->
 	<div id="main">
@@ -45,10 +332,10 @@
 		</section>
 
 		<!-- Two -->
-		<section id="two">
+		<section id="events">
 			<h2>Events</h2>
 			<div class="row">
-										<article class="col-6 col-12-xsmall">
+										<article class="col-6 col-12-xsmall card">
 					<a href="https://www.imperial.ac.uk/school-public-health/" class="image fit thumb"><img src="images/imperial.png" alt=""
 							height=220, width=500 /></a>
 					<h3>Urban Health and Graph Deep Learning in US Cities</h3>
@@ -56,7 +343,7 @@
 						Speaker</p>
 					<p>Presenting applications of graph machine learning to understand urban structure and health. </p>
 				</article>
-								<article class="col-6 col-12-xsmall">
+								<article class="col-6 col-12-xsmall card">
 					<a href="https://www.engineering.cornell.edu/sys/ezra-systems-scholars/" class="image fit thumb"><img src="images/cornell.png" alt=""
 							height=220, width=500 /></a>
 					<h3>Ezra Systems Fellowship</h3>
@@ -64,7 +351,7 @@
 						Postdoctoral Associate</p>
 					<p>Awarded the Ezra Systems fellowship which will support the development of interdisciplinary methods that combine systems thinking, urban analytics, and systems intelligence to advance integrated solutions for urban health systems.</p>
 				</article>
-				<article class="col-6 col-12-xsmall">
+				<article class="col-6 col-12-xsmall card">
 					<a href="https://www.cares.cam.ac.uk/research/hd4-project/" class="image fit thumb"><img src="images/cambridge_cares.png" alt=""
 							height=220, width=500 /></a>
 					<h3>Connections in Cities with Graphs</h3>
@@ -73,7 +360,7 @@
 					<p>Showing latest tools and research applications of urban graphs to deliver holistic and scalable insights for computational planning and sustainable urban development.</p>
 </p>
 				</article>
-				<article class="col-6 col-12-xsmall">
+				<article class="col-6 col-12-xsmall card">
 					<a href="https://irsgis.pku.edu.cn/english/index.htm" class="image fit thumb"><img src="images/peking.jpg" alt=""
 							height=220, width=500 /></a>
 					<h3>Research Seminar</h3>
@@ -81,7 +368,7 @@
 						Speaker</p>
 					<p>Research visit and discussion on urban analytics and GeoAI with Professor Zhang Fan's group at the Institute of Remote Sensing and GIS</p>
 				</article>
-				<article class="col-6 col-12-xsmall">
+				<article class="col-6 col-12-xsmall card">
 					<a href="https://www.arch.tsinghua.edu.cn/column/Home" class="image fit thumb"><img src="images/tsinghua.jpeg" alt=""
 							height=220, width=500 /></a>
 					<h3>NUS-Tsinghua Joint Seminar</h3>
@@ -90,7 +377,7 @@
 					<p>The joint seminar at Tsinghua University brought together researchers from both institutions at the School of Architecture to discuss urban analytics and sustainable development.</p>
 </p>
 				</article>
-				<article class="col-6 col-12-xsmall">
+				<article class="col-6 col-12-xsmall card">
 					<a href="https://www.unido.org/news/bridge-cities-dialogue-fuels-youth-leadership-urban-sustainability" class="image fit thumb"><img src="images/unido.png" alt=""
 							height=220, width=500 /></a>
 					<h3>Bridge for Cities Young Leaders Dialogue</h3>
@@ -98,7 +385,7 @@
 						Young Leader</p>
 					<p>50 young urban leaders from around the world who teamed up to develop creative yet pragmatic strategies in response to pressing urban demands.</p>
 				</article>
-				<article class="col-6 col-12-xsmall">
+				<article class="col-6 col-12-xsmall card">
 					<a href="https://www.worldcitiessummit.com.sg/wcs-mayors-forum" class="image fit thumb"><img src="images/wcs_2_cropped.jpg" alt=""
 							height=220, width=500 /></a>
 					<h3>Mayor's Forum</h3>
@@ -107,7 +394,7 @@
 					<p>The annual Mayors Forum of the World Cities Summit was hosted in beautiful Vienna and provided a platform for city leaders to share their cities best practices. It was an honor to meet and speak with Minister for National Development, Mr Chee Hong Tat. 
 </p>
 				</article>
-				<article class="col-6 col-12-xsmall">
+				<article class="col-6 col-12-xsmall card">
 					<a href="https://www.sustainabledesign.arct.cam.ac.uk/news/joint-seminar-day-nus-urban-analytics-lab-27th-june-2025"
 						class="image fit"><img src="images/cambridge.jpg" alt="" height=220, width=500 /></a>
 					<h3>Joint Seminar Day</h3>
@@ -115,7 +402,7 @@
 						Representative</p>
 					<p>Sustainable Design Group hosted researchers from the NUS Urban Analytics Lab. Both research groups presented joint seminars, and shared exciting research on decarbonisation of built environment, planetary health, and urban analytics.</p>
 				</article>
-				<article class="col-6 col-12-xsmall">
+				<article class="col-6 col-12-xsmall card">
 					<a href="https://www.ucl.ac.uk/bartlett/casa/about/cupum-2025" class="image fit thumb"><img src="images/cupum_crop.jpg" alt=""
 							height=220, width=500 /></a>
 					<h3>CUPUM 2025</h3>
@@ -123,7 +410,7 @@
 						Speaker</p>
 					<p>Presented on urban graph for multi-scalar urban analytics that connect cities, data, and city. It was a great honor to meet Professor Yeh at London. </p>
 				</article>
-				<article class="col-6 col-12-xsmall">
+				<article class="col-6 col-12-xsmall card">
 					<a href="https://singaporeglobalnetwork.gov.sg/events-past/tea-reception-with-sm-lee-in-boston/"
 						class="image fit"><img src="images/sg_global_cropped.jpg" alt="" height=220, width=500 /></a>
 					<h3>Tea Reception with SM Lee</h3>
@@ -131,7 +418,7 @@
 						Global Member</p>
 					<p>The Singapore Embassy and Singapore Global Network hosted a memorable tea reception providing a meaningful opportunity to connect, reflect, and strengthen bonds among Singaporeans abroad.</p>
 				</article>
-				<article class="col-6 col-12-xsmall">
+				<article class="col-6 col-12-xsmall card">
 					<a href="https://senseable.mit.edu/" class="image fit thumb"><img src="images/mitscl.png" alt=""
 							height=220, width=500 /></a>
 					<h3>MIT Visiting Researcher (Boston, USA)</h3>
@@ -139,7 +426,7 @@
 						Visiting Scholar</p>
 					<p>Working on visual A.I. algorithms for cityscale urban sensing.</p>
 				</article>
-				<article class="col-6 col-12-xsmall">
+				<article class="col-6 col-12-xsmall card">
 					<a href="https://www.worldcitiessummit.com.sg/programme/wcs-young-leaders"
 						class="image fit thumb"><img src="images/wcs_logo copy.png" alt="" height=220, width=500 /></a>
 					<h3>Young Leaders Programme</h3>
@@ -148,7 +435,7 @@
 					<p>The World Cities Summit Young Leaders programme provides a professional networking and thought
 						leadership platform on global urban issues.</p>
 				</article>
-				<article class="col-6 col-12-xsmall">
+				<article class="col-6 col-12-xsmall card">
 					<a href="https://www.map4.jp/" class="image fit thumb"><img src="images/mapiv.png" alt=""
 							height=220, width=500 /></a>
 					<h3>NUS Overseas College (Nagoya, Japan)</h3>
@@ -157,7 +444,7 @@
 					<p>Developing open source, deep learning-based solutions for end-to-end generation of
 						high-definition maps from city-scale point cloud and 360° imagery.</p>
 				</article>
-				<article class="col-6 col-12-xsmall">
+				<article class="col-6 col-12-xsmall card">
 					<a href="https://www.mnd.gov.sg/urban-solutions-sustainability-r-d-congress-2023"
 						class="image fit thumb"><img src="images/ussrd.png" alt="" height=220, width=500 /></a>
 					<h3>Science-Based Approach to Future Scenario Planning</h3>
@@ -166,7 +453,7 @@
 						Speaker</p>
 					<p>Examining the role of science-based methods to plan for the future of cities. </p>
 				</article>
-				<article class="col-6 col-12-xsmall">
+				<article class="col-6 col-12-xsmall card">
 					<a href="https://portal.ogc.org/meet/" class="image fit thumb"><img src="images/ogc_logo.png" alt=""
 							height=220, width=500 /></a>
 					<h3>Modelling Urban Networks in Cities</h3>
@@ -175,7 +462,7 @@
 						Session Organizer</p>
 					<p>We present a network-based analytical perspective to understand and model cities. </p>
 				</article>
-				<article class="col-6 col-12-xsmall">
+				<article class="col-6 col-12-xsmall card">
 					<a href="https://www.planning.org.au/events/event/pia-plantech-briefing-free-and-open-source-digital-planning-tools"
 						class="image fit thumb"><img src="images/pia.png" alt="" height=220, width=500 /></a>
 					<h3>Free and Open Source Digital Planning Tools</h3>
@@ -184,7 +471,7 @@
 						Speaker</p>
 					<p>A crash course on freely available tools that can add value to the urban planning process. </p>
 				</article>
-				<article class="col-6 col-12-xsmall">
+				<article class="col-6 col-12-xsmall card">
 					<a href="http://sdss2023.spatial-data-science.net/" class="image fit thumb"><img
 							src="images/sdss.jpeg" alt="" height=220, width=500 /></a>
 					<h3>Street view imagery: Have we answered all the questions with it? What’s left to do?</h3>
@@ -198,10 +485,10 @@
 		</section>
 
 		<!-- Two -->
-		<section id="two">
+		<section id="work">
 			<h2>Recent Work</h2>
 			<div class="row">
-				<article class="col-6 col-12-xsmall">
+				<article class="col-6 col-12-xsmall card">
 					<a href="https://doi.org/10.1038/s41893-025-01615-8" class="image fit thumb"><img
 							src="images/nature_sus.png" alt="" height=220, width=500 /></a>
 					<h3>Revealing building operating carbon dynamics for multiple cities</h3>
@@ -209,7 +496,7 @@
 						Yap, W., Wu, A.N., Miller, C., & Biljecki, F (2025).</p>
 					<p>Democratising built environment emissions at building resolution across multiple cities with open science and graph deep learning.</p>
 				</article>
-				<article class="col-6 col-12-xsmall">
+				<article class="col-6 col-12-xsmall card">
 					<a href="https://doi.org/10.1142/13719" class="image fit thumb"><img
 							src="images/cities_rebooted.jpg" alt="" height=220, width=500 /></a>
 					<h3>The City Rebooted: Networks, Connectivity and Place Identities in Singapore</h3>
@@ -218,7 +505,7 @@
 					<p>This book adopts a multidisciplinary approach to signpost future pathways of cities, drawing on
 						the experiences of the city-state of Singapore.</p>
 				</article>
-				<article class="col-6 col-12-xsmall">
+				<article class="col-6 col-12-xsmall card">
 					<a href="https://councilonurbaninitiatives.com/resources/housing-and-the-city-case-studies-of-integrated-urban-design"
 						class="image fit thumb"><img src="images/housingandcity.png" alt="" height=220, width=500 /></a>
 					<h3>Housing and the City</h3>
@@ -226,7 +513,7 @@
 						Chan, H.C., & Yap, W (2024).</p>
 					<p>Five decades of delivering affordable and adequate public housing in Singapore. </p>
 				</article>
-				<article class="col-6 col-12-xsmall">
+				<article class="col-6 col-12-xsmall card">
 					<a href="https://www.nature.com/articles/s41597-023-02578-1" class="image fit thumb"><img
 							src="images/gun/compare.png" alt="" height=220, width=500 /></a>
 					<h3>Global Feature-Rich Network Dataset</h3>
@@ -234,7 +521,7 @@
 						Yap, W., & Biljecki, F (2023).</p>
 					<p>High resolution network dataset and interactive dashboard for 50 global cities. </p>
 				</article>
-				<article class="col-6 col-12-xsmall">
+				<article class="col-6 col-12-xsmall card">
 					<a href="https://www.nature.com/articles/s42949-023-00125-w" class="image fit thumb"><img
 							src="images/gun/gun.png" alt="" height=220, width=500 /></a>
 					<h3>Urbanity: Automated Modelling and Analysis of Multidimensional Networks in Cities</h3>
@@ -243,7 +530,7 @@
 					<p>We develop an open python package to automate computation of contextual and semantic spatial
 						attributes of urban networks at any geographic location and scale. </p>
 				</article>
-				<article class="col-6 col-12-xsmall">
+				<article class="col-6 col-12-xsmall card">
 					<a href="https://doi.org/10.1177/23998083221138832" class="image fit thumb"><img
 							src="images/epb/Routes_Complexity.png" alt="" height=220, width=500 /></a>
 					<h3>Incorporating networks in semantic understanding of streetscapes for active mobility planning.
@@ -251,11 +538,9 @@
 					<p><b>Published in Environment and Planning B: Urban Analytics and City Science </b><br />
 						Yap, W., Chang, J.H., & Biljecki, F (2022).</p>
 					<p>We investigate visual complexity and urban greenery along urban networks in Singapore and Tokyo.
-						Access: <a
-							href="https://ual.sg/publication/2023-epb-semantic-networks/2023-epb-semantic-networks.pdf">here</a>.
 					</p>
 				</article>
-				<article class="col-6 col-12-xsmall">
+				<article class="col-6 col-12-xsmall card">
 					<a href="https://doi.org/10.1016/j.compenvurbsys.2022.101825" class="image fit thumb"><img
 							src="images/foss/02.png" alt="" height=220, width=500 /></a>
 					<h3>Free and Open Urbanism: Software for Urban Planning Practice</h3>
@@ -265,7 +550,7 @@
 						identified 124 software and analyse trends in the landscape. Our work is open source and
 						available <a href="https://doi.org/10.1016/j.compenvurbsys.2022.101825">here</a>. </p>
 				</article>
-				<article class="col-6 col-12-xsmall">
+				<article class="col-6 col-12-xsmall card">
 					<a href="https://lkycic.sutd.edu.sg/publications/books/cities-in-a-time-of-global-emergencies/"
 						class="image fit thumb"><img src="images/cities.png" alt="" height=220, width=500 /></a>
 					<h3>(Book Chapter) Tokyo - Pushing Frontiers, Planning for Society 5.0 </h3>
@@ -275,7 +560,7 @@
 						Bruno Lanvin, and Chan Heng Chee. What drives cities to be smart? How have cities employed
 						technology to cope with the global pandemic? </p>
 				</article>
-				<article class="col-6 col-12-xsmall">
+				<article class="col-6 col-12-xsmall card">
 					<a href="https://lkycic.sutd.edu.sg/publications/age-friendly-neighbourhood-planning-and-design-guidelines-a-singapore-case-study-world-scientific/"
 						class="image fit thumb"><img src="images/PDG.png" alt="" height=220, width=500 /></a>
 					<h3>(Book) Age-Friendly Neighbourhood Planning and Design Guidelines - A Singapore Case Study </h3>
@@ -287,7 +572,7 @@
 						engage with older people when creating neighbourhoods that contribute to healthy ageing in
 						place.</p>
 				</article>
-				<article class="col-6 col-12-xsmall">
+				<article class="col-6 col-12-xsmall card">
 					<a href="https://doi.org/10.1016/j.jth.2020.100881" class="image fit thumb"><img
 							src="images/jth.png" alt="" height=220, width=500 /></a>
 					<h3>Neighbourhood built Environment, physical activity, and physical health among older adults in
@@ -298,7 +583,7 @@
 						beneficial effects on individuals’ health into later years. This research investigated the
 						inter-relationships between neighbourhood built environment and health.</p>
 				</article>
-				<article class="col-6 col-12-xsmall">
+				<article class="col-6 col-12-xsmall card">
 					<a href="https://doi.org/10.1016/j.tranpol.2020.06.017" class="image fit thumb"><img
 							src="images/tp.png" alt="" height=220, width=500 /></a>
 					<h3>The associations between older adults’ daily travel pattern and objective and perceived built
@@ -315,18 +600,14 @@
 		<!-- Three -->
 		<section id="three">
 			<h2>Get In Touch</h2>
-			<p>Please do not hesitate to reach out if you have an interesting idea for collaboration, have some research
-				opportunity to share, or would like to discuss some ideas. I have a broad interest in all things urban,
-				not limited to, urban ethnography, collaborative planning, urban economics, real estate markets,
-				metaverse and smart cities. I am also keen to explore context-based urban research, particularly for
-				communities and cities in Southeast Asia. Looking forward to connecting and hearing from you!</p>
+			<p>Please do not hesitate to reach out to me for new ideas and collaborations. Looking forward to connecting and hearing from you!</p>
 			<div class="row">
 				<div class="col-8 col-12-small">
 					<form method="POST" action="https://formspree.io/f/mlezvvbn">
 						<div class="row gtr-uniform gtr-50">
-							<div class="col-6 col-12-xsmall"><input type="text" name="name" id="name"
+							<div class="col-6 col-12-xsmall card"><input type="text" name="name" id="name"
 									placeholder="Name" /></div>
-							<div class="col-6 col-12-xsmall"><input type="email" name="email" id="email"
+							<div class="col-6 col-12-xsmall card"><input type="email" name="email" id="email"
 									placeholder="Email" /></div>
 							<div class="col-12"><textarea name="message" id="message" placeholder="Message"
 									rows="4"></textarea></div>
@@ -398,7 +679,7 @@ print 'It took ' + i + ' iterations to sort the deck.';</code></pre>
 						<section>
 							<h4>Lists</h4>
 							<div class="row">
-								<div class="col-6 col-12-xsmall">
+								<div class="col-6 col-12-xsmall card">
 									<h5>Unordered</h5>
 									<ul>
 										<li>Dolor pulvinar etiam magna etiam.</li>
@@ -412,7 +693,7 @@ print 'It took ' + i + ' iterations to sort the deck.';</code></pre>
 										<li>Felis enim feugiat dolore viverra.</li>
 									</ul>
 								</div>
-								<div class="col-6 col-12-xsmall">
+								<div class="col-6 col-12-xsmall card">
 									<h5>Ordered</h5>
 									<ol>
 										<li>Dolor pulvinar etiam magna etiam.</li>
@@ -598,10 +879,10 @@ print 'It took ' + i + ' iterations to sort the deck.';</code></pre>
 							<h4>Form</h4>
 							<form method="post" action="#">
 								<div class="row gtr-uniform gtr-50">
-									<div class="col-6 col-12-xsmall">
+									<div class="col-6 col-12-xsmall card">
 										<input type="text" name="demo-name" id="demo-name" value="" placeholder="Name" />
 									</div>
-									<div class="col-6 col-12-xsmall">
+									<div class="col-6 col-12-xsmall card">
 										<input type="email" name="demo-email" id="demo-email" value="" placeholder="Email" />
 									</div>
 									<div class="col-12">
@@ -700,7 +981,6 @@ print 'It took ' + i + ' iterations to sort the deck.';</code></pre>
 	<script src="assets/js/breakpoints.min.js"></script>
 	<script src="assets/js/util.js"></script>
 	<script src="assets/js/main.js"></script>
-
 </body>
 
 </html>
