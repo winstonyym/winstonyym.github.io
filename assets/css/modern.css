@@ -443,6 +443,31 @@ body.is-loading { overflow: hidden; height: 100vh; }
 .about {
   padding: clamp(100px, 14vh, 180px) var(--rail);
   position: relative; z-index: 2;
+  isolation: isolate;
+  overflow: hidden;
+}
+.about__network {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;       /* never intercepts events; particles.js listens on window */
+  opacity: 0.95;
+  -webkit-mask-image: radial-gradient(120% 90% at 50% 50%, #000 55%, transparent 100%);
+          mask-image: radial-gradient(120% 90% at 50% 50%, #000 55%, transparent 100%);
+}
+.about__network .particles-js-canvas-el {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+.about > .kicker,
+.about__lead,
+.about__grid,
+.about__actions {
+  position: relative;
+  z-index: 1;
 }
 .about__lead {
   font-family: var(--ff-display);
@@ -656,17 +681,30 @@ body.is-loading { overflow: hidden; height: 100vh; }
   border-bottom: 1px solid var(--line);
   padding: 28px 0;
   font-family: var(--ff-display);
-  font-size: clamp(36px, 6vw, 88px);
+  font-size: clamp(36px, 6vw, 44px);
   line-height: 1;
   white-space: nowrap;
 }
 .marquee__track {
-  display: inline-flex; gap: 56px;
+  display: inline-flex;
+  gap: 56px;
   will-change: transform;
-  animation: marquee 5s linear infinite;
+  animation: marquee 20s linear infinite;
 }
-.marquee__track span { display: inline-flex; align-items: center; gap: 56px; font-style: italic; opacity: 0.85; }
-.marquee__track i { font-style: normal; opacity: 0.45; }
+
+.marquee__track span {
+  display: inline-flex;
+  align-items: center;
+  gap: 56px;
+  font-style: italic;
+  opacity: 0.85;
+}
+
+.marquee__track i {
+  font-style: normal;
+  opacity: 0.45;
+  transform: translate3d(0,0,0);
+}
 
 .speaking__grid {
   padding: 0 var(--rail);
